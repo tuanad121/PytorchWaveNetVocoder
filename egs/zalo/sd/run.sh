@@ -72,7 +72,7 @@ n_jobs=10
 # resume: checkpoint to resume
 # }}}
 n_gpus=1
-spk=slt
+spk=f1
 n_quantize=256
 n_aux=28
 n_resch=512
@@ -130,16 +130,7 @@ if echo ${stage} | grep -q 0; then
     echo "###########################################################"
     echo "#                 DATA PREPARATION STEP                   #"
     echo "###########################################################"
-    if [ ! -e ${ARCTIC_DB_ROOT} ];then
-        mkdir -p ${ARCTIC_DB_ROOT}
-        cd ${ARCTIC_DB_ROOT}
-        for id in bdl slt rms clb jmk ksp awb;do
-            wget http://festvox.org/cmu_arctic/cmu_arctic/packed/cmu_us_${id}_arctic-0.95-release.tar.bz2
-            tar xf cmu_us_${id}*.tar.bz2
-        done
-        rm ./*.tar.bz2
-        cd ../
-    fi
+    
     [ ! -e data/${train} ] && mkdir -p data/${train}
     find ${ARCTIC_DB_ROOT}/${spk}/wav -name "*.wav" \
         | sort | head -n 1028 > data/${train}/wav.scp
