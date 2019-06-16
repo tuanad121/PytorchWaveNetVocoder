@@ -124,6 +124,17 @@ eval=ev_${spk}
 set -e
 # }}}
 
+if [ ! -n "${tag}" ];then
+    expdir=exp/tr_arctic_16k_sd_${feature_type}_${spk}_nq${n_quantize}_na${n_aux}_nrc${n_resch}_nsc${n_skipch}_ks${kernel_size}_dp${dilation_depth}_dr${dilation_repeat}_lr${lr}_wd${weight_decay}_bl${batch_length}_bs${batch_size}
+    if ${use_noise_shaping};then
+        expdir=${expdir}_ns
+    fi
+    if ${use_upsampling};then
+        expdir=${expdir}_up
+    fi
+else
+    expdir=exp/tr_arctic_${tag}
+fi
 
 # STAGE 5 {{{
 if echo ${stage} | grep -q 5; then
