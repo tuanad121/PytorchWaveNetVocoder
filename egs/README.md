@@ -7,7 +7,7 @@ This is the outline of recipes.
 - [CMU Arctic database](http://www.festvox.org/cmu_arctic/): `egs/arctic`
 - [LJ Speech database](https://keithito.com/LJ-Speech-Dataset/): `egs/ljspeech`
 - [M-AILABS speech database](http://www.m-ailabs.bayern/en/the-mailabs-speech-dataset/): `egs/m-ailabs-speech`
-- Zalo TTS 
+- Zalo TTS: `egs/zalo` 
 
 ## Type of recipe
 
