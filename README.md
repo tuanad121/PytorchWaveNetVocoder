@@ -16,6 +16,7 @@ This repository is the wavenet-vocoder implementation with pytorch.
     - [CMU Arctic database](http://www.festvox.org/cmu_arctic/): `egs/arctic`
     - [LJ Speech database](https://keithito.com/LJ-Speech-Dataset/): `egs/ljspeech`
     - [M-AILABS speech database](http://www.m-ailabs.bayern/en/the-mailabs-speech-dataset/): `egs/m-ailabs-speech`
+    - Zalo: `egs/zalo/sd`
 
 ## Requirements
 
@@ -30,15 +31,16 @@ Recommend to use the GPU with 10GB> memory.
 ## Setup
 
 ```bash
-$ git clone https://github.com/kan-bayashi/PytorchWaveNetVocoder.git
+$ git clone https://github.com/tuanad121/PytorchWaveNetVocoder.git
 $ cd PytorchWaveNetVocoder/tools
 $ make
 ```
 
 ## How-to-run
+We need F0 valid range for training speaker e.g `egs/zalo/sd/conf/f1.f0` and keep 16kHz audio files for the speaker in `downloads/f1/wav`, then
 
 ```bash
-$ cd egs/arctic/sd
+$ cd egs/zalo/sd
 $ ./run.sh
 ```
 
