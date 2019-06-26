@@ -43,9 +43,9 @@ fftl=1024
 highpass_cutoff=70
 fs=16000
 mcep_dim=24
-mcep_alpha=0.410
+mcep_alpha=0.42
 mag=0.5
-n_jobs=10
+n_jobs=20
 
 #######################################
 #          TRAINING SETTING           #
@@ -133,7 +133,7 @@ if echo ${stage} | grep -q 0; then
     
     [ ! -e data/${train} ] && mkdir -p data/${train}
     find ${ARCTIC_DB_ROOT}/${spk}/wav -name "*.wav" \
-        | sort | head -n 1028 > data/${train}/wav.scp
+        | sort | head -n 2500 > data/${train}/wav.scp
     [ ! -e data/${eval} ] && mkdir -p data/${eval}
     find ${ARCTIC_DB_ROOT}/${spk}/wav -name "*.wav" \
        | sort | tail -n 104 > data/${eval}/wav.scp

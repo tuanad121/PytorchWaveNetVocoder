@@ -45,7 +45,7 @@ fs=16000
 mcep_dim=24
 mcep_alpha=0.420
 mag=0.5
-n_jobs=10
+n_jobs=20
 
 #######################################
 #          TRAINING SETTING           #
@@ -71,7 +71,7 @@ n_jobs=10
 # use_speaker_code: true or false
 # resume: checkpoint to resume
 # }}}
-n_gpus=1
+n_gpus=2
 spk=f1
 n_quantize=256
 n_aux=28
