@@ -17,10 +17,10 @@
 # 0: data preparation step
 # 1: feature extraction step
 # 2: statistics calculation step
-# 3: apply noise shaping step
+# 3: noise shaping step
 # 4: training step
 # 5: decoding step
-# 6: restore noise shaping step
+# 6: restoring noise shaping step
 # }}}
 stage=0123456
 
@@ -28,22 +28,23 @@ stage=0123456
 #          FEATURE SETTING            #
 #######################################
 # {{{
-# feature_type: world or melspc
 # shiftms: shift length in msec (default=5)
 # fftl: fft length (default=1024)
 # highpass_cutoff: highpass filter cutoff frequency (if 0, will not apply)
-# mcep_dim: dimension of mel-cepstrum
-# mcep_alpha: alpha value of mel-cepstrum
+# mspc_dim: dimension of mel-spectrogram
+# mcep_dim: dimension of mel-cepstrum (only used for noise shaping)
+# mcep_alpha: all pass filter constant (only used for noise shaping)
 # mag: coefficient of noise shaping (default=0.5)
 # n_jobs: number of parallel jobs
 # }}}
-feature_type=world
+feature_type=melspc
 shiftms=5
 fftl=1024
 highpass_cutoff=70
 fs=16000
-mcep_dim=24
-mcep_alpha=0.420
+mspc_dim=80
+mcep_dim=25
+mcep_alpha=0.42
 mag=0.5
 n_jobs=20
 
@@ -71,10 +72,10 @@ n_jobs=20
 # use_speaker_code: true or false
 # resume: checkpoint to resume
 # }}}
-n_gpus=2
+n_gpus=1
 spk=f1
 n_quantize=256
-n_aux=28
+n_aux=80
 n_resch=512
 n_skipch=256
 dilation_depth=10
@@ -88,7 +89,6 @@ batch_size=1
 checkpoints=10000
 use_upsampling=true
 use_noise_shaping=true
-use_speaker_code=false
 resume=
 
 #######################################
@@ -98,7 +98,7 @@ resume=
 # outdir: directory to save decoded wav dir (if not set, will automatically set)
 # checkpoint: full path of model to be used to decode (if not set, final model will be used)
 # config: model configuration file (if not set, will automatically set)
-# feats: list or directory of feature files 
+# feats: list or directory of feature files
 # n_gpus: number of gpus to decode
 # }}}
 outdir=
@@ -124,8 +124,10 @@ eval=ev_${spk}
 set -e
 # }}}
 
+# STAGE 4 {{{
+# set variables
 if [ ! -n "${tag}" ];then
-    expdir=exp/tr_arctic_16k_sd_${feature_type}_${spk}_nq${n_quantize}_na${n_aux}_nrc${n_resch}_nsc${n_skipch}_ks${kernel_size}_dp${dilation_depth}_dr${dilation_repeat}_lr${lr}_wd${weight_decay}_bl${batch_length}_bs${batch_size}
+    expdir=exp/tr_arctic_16k_sd_melspc_${spk}_nq${n_quantize}_na${n_aux}_nrc${n_resch}_nsc${n_skipch}_ks${kernel_size}_dp${dilation_depth}_dr${dilation_repeat}_lr${lr}_wd${weight_decay}_bl${batch_length}_bs${batch_size}
     if ${use_noise_shaping};then
         expdir=${expdir}_ns
     fi
@@ -135,6 +137,9 @@ if [ ! -n "${tag}" ];then
 else
     expdir=exp/tr_arctic_${tag}
 fi
+
+# }}}
+
 
 # STAGE 5 {{{
 if echo ${stage} | grep -q 5; then
@@ -158,6 +163,8 @@ if echo ${stage} | grep -q 5; then
 fi
 # }}}
 
+
+
 # STAGE 6 {{{
 if echo ${stage} | grep -q 6 && ${use_noise_shaping}; then
     echo "###########################################################"
@@ -165,17 +172,15 @@ if echo ${stage} | grep -q 6 && ${use_noise_shaping}; then
     echo "###########################################################"
     [ ! -n "${outdir}" ] && outdir=${expdir}/wav
     find "${outdir}" -name "*.wav" | sort > data/${eval}/wav_generated.scp
-    ${train_cmd} --num-threads ${n_jobs} exp/noise_shaping/noise_shaping_restore_${eval}.log \
+    ${train_cmd} --num-threads ${n_jobs} exp/noise_shaping/noise_shaping_restore_mcep_${eval}.log \
         noise_shaping.py \
             --waveforms data/${eval}/wav_generated.scp \
             --stats data/${train}/stats.h5 \
-            --writedir "${outdir}"_restored \
-            --feature_type ${feature_type} \
+            --writedir "${outdir}_restored" \
+            --feature_type mcep \
             --fs ${fs} \
             --shiftms ${shiftms} \
             --fftl ${fftl} \
-            --mcep_dim_start 2 \
-            --mcep_dim_end $(( 2 + mcep_dim +1 )) \
             --mcep_alpha ${mcep_alpha} \
             --mag ${mag} \
             --n_jobs ${n_jobs} \
